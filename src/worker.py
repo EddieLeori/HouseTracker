@@ -136,24 +136,14 @@ class Worker:
                 f = open(file, 'a')
                 rpf = open(rpfile, 'a')
                 for data in realdata:
-                    # todo: write file
                     try:
+                        # write file
                         f.write(str(data.work_id) + " " + str(data.type) + " " + str(data.uuid) + "\n")
-                        rpf.write(data.uuid + "\n")
-                        rpf.write(data.hef + "\n")
-                        rpf.write(data.txt + "\n")
-                        rpf.write(data.map + "\n")
-                        rpf.write(data.data + "\n")
-                        rpf.write(data.price + "\n")
-                        rpf.write("-----------------------------------------------------" + "\n")
-
-                        Log(data.uuid)
-                        Log(data.hef)
-                        Log(data.txt)
-                        Log(data.map)
-                        Log(data.data)
-                        Log(data.price)
-                        Log("-----------------------------------------------------")
+                        tmpdata = data.uuid + "\n" + data.hef + "\n" + data.txt + "\n" + data.map + "\n" + data.data + "\n" + data.price + "\n"
+                        tmpdata = tmpdata + "-----------------------------------------------------" + "\n"
+                        rpf.write(tmpdata)
+                        # send notiry
+                        self.Notify(tmpdata)
                     except:
                         Log("Error")
                         Log(data)
@@ -162,31 +152,17 @@ class Worker:
                 rpf.close()
             else:
                 Log("is none...")
-            self.Notify(realdata)
+                self.Notify("is none...")
 
-    def Notify(self, realdata):
-        vdata = "is non..."
-        if len(realdata) > 0 :
-            vdata = ""
-            for data in realdata:
-                # todo: write file
-                try:
-                    vdata = vdata + data.uuid + "\n"
-                    vdata = vdata + data.hef + "\n"
-                    vdata = vdata + data.txt + "\n"
-                    vdata = vdata + data.map + "\n"
-                    vdata = vdata + data.data + "\n"
-                    vdata = vdata + data.price + "\n"
-                    vdata = vdata + "-----------------------------------------------------" + "\n"
-                except:
-                    vdata = vdata + "Error"
-                    vdata = vdata + "-----------------------------------------------------" + "\n"
+    def Notify(self, data):
+        # Log(data)                        
         d = {
-            "psw": "!@34001?>f!&&",
-            "key": "broadcast",
-            "value": vdata
-        }
+                "psw": "!@34001?>f!&&",
+                "key": "broadcast",
+                "value": data
+            }
         print(d)
         requests.post('https://leori-houserobot2.herokuapp.com/action', data = json.dumps(d))
         # requests.post('http://192.168.1.103:5123/action', data = json.dumps(d))
+        
 

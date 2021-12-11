@@ -3,6 +3,7 @@ from tornado.ioloop import IOLoop
 import requests
 from bs4 import BeautifulSoup
 import math
+import json
 
 class HData:
     def __init__(self):
@@ -46,7 +47,7 @@ class Worker:
         self.m_header = {'user-agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36'}
         self.m_exist_path = "report/exist.txt"
         self.m_report_path = "report/report"
-        self.m_sync_time_s = 3 * 60 * 60
+        self.m_sync_time_s = 3 * 60 * 60 # 3 hours
 
     def RAKUYA(self):
         Log("RAKUYA GO")
@@ -128,35 +129,64 @@ class Worker:
         return False
 
     def End(self, realdata, work_id, type):
-        if realdata is not None and len(realdata) > 0:
-            file = self.m_exist_path
-            rpfile = self.m_report_path + "-" + str(work_id) + "-" + str(type) + "-" + CurrentDate() + ".txt"
-            f = open(file, 'a')
-            rpf = open(rpfile, 'a')
+        if realdata is not None:
+            if len(realdata) > 0:
+                file = self.m_exist_path
+                rpfile = self.m_report_path + "-" + str(work_id) + "-" + str(type) + "-" + CurrentDate() + ".txt"
+                f = open(file, 'a')
+                rpf = open(rpfile, 'a')
+                for data in realdata:
+                    # todo: write file
+                    try:
+                        f.write(str(data.work_id) + " " + str(data.type) + " " + str(data.uuid) + "\n")
+                        rpf.write(data.uuid + "\n")
+                        rpf.write(data.hef + "\n")
+                        rpf.write(data.txt + "\n")
+                        rpf.write(data.map + "\n")
+                        rpf.write(data.data + "\n")
+                        rpf.write(data.price + "\n")
+                        rpf.write("-----------------------------------------------------" + "\n")
+
+                        Log(data.uuid)
+                        Log(data.hef)
+                        Log(data.txt)
+                        Log(data.map)
+                        Log(data.data)
+                        Log(data.price)
+                        Log("-----------------------------------------------------")
+                    except:
+                        Log("Error")
+                        Log(data)
+                        Log("-----------------------------------------------------")
+                f.close()
+                rpf.close()
+            else:
+                Log("is none...")
+            self.Notify(realdata)
+
+    def Notify(self, realdata):
+        vdata = "is non..."
+        if len(realdata) > 0 :
+            vdata = ""
             for data in realdata:
                 # todo: write file
                 try:
-                    f.write(str(data.work_id) + " " + str(data.type) + " " + str(data.uuid) + "\n")
-                    rpf.write(data.uuid + "\n")
-                    rpf.write(data.hef + "\n")
-                    rpf.write(data.txt + "\n")
-                    rpf.write(data.map + "\n")
-                    rpf.write(data.data + "\n")
-                    rpf.write(data.price + "\n")
-                    rpf.write("-----------------------------------------------------" + "\n")
-
-                    Log(data.uuid)
-                    Log(data.hef)
-                    Log(data.txt)
-                    Log(data.map)
-                    Log(data.data)
-                    Log(data.price)
-                    Log("-----------------------------------------------------")
+                    vdata = vdata + data.uuid + "\n"
+                    vdata = vdata + data.hef + "\n"
+                    vdata = vdata + data.txt + "\n"
+                    vdata = vdata + data.map + "\n"
+                    vdata = vdata + data.data + "\n"
+                    vdata = vdata + data.price + "\n"
+                    vdata = vdata + "-----------------------------------------------------" + "\n"
                 except:
-                    Log("Error")
-                    Log(data)
-                    Log("-----------------------------------------------------")
-            f.close()
-            rpf.close()
-        else:
-            Log("is none...")
+                    vdata = vdata + "Error"
+                    vdata = vdata + "-----------------------------------------------------" + "\n"
+        d = {
+            "psw": "!@34001?>f!&&",
+            "key": "broadcast",
+            "value": vdata
+        }
+        print(d)
+        requests.post('https://leori-houserobot2.herokuapp.com/action', data = json.dumps(d))
+        # requests.post('http://192.168.1.103:5123/action', data = json.dumps(d))
+

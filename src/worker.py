@@ -54,56 +54,59 @@ class Worker:
 
         type = 0
 
-        if self.m_rakuya_url is None or self.m_rakuya_url == "":
-            Log("RAKUYA url is none")
-            return
+        try:
+            if self.m_rakuya_url is None or self.m_rakuya_url == "":
+                Log("RAKUYA url is none")
+                return
 
-        url = self.m_rakuya_url
-        headers = self.m_header
+            url = self.m_rakuya_url
+            headers = self.m_header
 
-        # get url
-        resp = requests.get(url, headers = headers)
-        soup = BeautifulSoup(resp.text, 'html.parser')
-
-        # get pages cnt
-        allcnt = int(soup.findAll("span", "numb setSearchTotal")[0].text.strip())
-        pageitemcnt = 19
-        pages = math.ceil(allcnt / pageitemcnt)
-
-        # # test
-        # pages = 1
-
-        # get exist
-        existList = self.GetExistData()
-
-        # get all
-        realdata = []
-        for page in range(pages):
-            time.sleep(0.1)
-
-            # get item url
-            pageurl = url + "&page=" + str(page + 1)
-            resp = requests.get(pageurl, headers=headers)
+            # get url
+            resp = requests.get(url, headers = headers)
             soup = BeautifulSoup(resp.text, 'html.parser')
 
-            # get data
-            allinfos = soup.findAll('section', class_='grid-item search-obj')
-            for item in allinfos:
-                data = HData()
-                data.work_id = self.m_id
-                data.type = type
-                data.uuid = item.attrs.get('data-ehid')
-                data.hef = item.find('a', class_ = 'browseItemDetail').get('href')
-                data.txt = item.find('div', class_='h2 title-2').text.strip()
-                data.map = item.find('h2', class_='address').text.strip()
-                data.data = item.find('ul', class_='list__info').text.strip()
-                data.price = item.find('div', class_='group__price').text.strip()
+            # get pages cnt
+            allcnt = int(soup.findAll("span", "numb setSearchTotal")[0].text.strip())
+            pageitemcnt = 19
+            pages = math.ceil(allcnt / pageitemcnt)
 
-                # check real
-                if self.CheckExist(existList, self.m_id, type, data.uuid) is False:
-                    realdata.append(data)
+            # # test
+            # pages = 1
 
-        # do send me
+            # get exist
+            existList = self.GetExistData()
+
+            # get all
+            realdata = []
+            for page in range(pages):
+                time.sleep(0.1)
+
+                # get item url
+                pageurl = url + "&page=" + str(page + 1)
+                resp = requests.get(pageurl, headers=headers)
+                soup = BeautifulSoup(resp.text, 'html.parser')
+
+                # get data
+                allinfos = soup.findAll('section', class_='grid-item search-obj')
+                for item in allinfos:
+                    data = HData()
+                    data.work_id = self.m_id
+                    data.type = type
+                    data.uuid = item.attrs.get('data-ehid')
+                    data.hef = item.find('a', class_ = 'browseItemDetail').get('href')
+                    data.txt = item.find('div', class_='h2 title-2').text.strip()
+                    data.map = item.find('h2', class_='address').text.strip()
+                    data.data = item.find('ul', class_='list__info').text.strip()
+                    data.price = item.find('div', class_='group__price').text.strip()
+
+                    # check real
+                    if self.CheckExist(existList, self.m_id, type, data.uuid) is False:
+                        realdata.append(data)
+        except:
+            Log("RAKUYA is except error!")
+
+        # end
         self.End(realdata, self.m_id, type)
 
         # loop

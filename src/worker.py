@@ -43,6 +43,7 @@ class Worker:
         self.m_id = 0
         self.m_rakuya_url = "https://www.rakuya.com.tw/sell/result?city=8&zipcode=404&price=~1200&size=22~&usecode=1&room=3~&floor=4~&age=~22&other=P&sort=11&browsed=0"
         self.m_rakuya_url = "https://www.rakuya.com.tw/sell/result?city=8&zipcode=406%2C404&price=~1200&size=22~&usecode=1&room=3~&floor=4~&age=~22&other=P&sort=11&browsed=0"
+        self.m_rakuya_url = "https://www.rakuya.com.tw/sell/result?city=8&zipcode=406%2C404&price=~1200&size=22~&usecode=1&room=3~&other=P&sort=21&browsed=0"
         # self.m_rakuya_url = "https://www.rakuya.com.tw/sell/result?city=8&zipcode=404&price=500~1000&size=20~30&sort=11&browsed=0"
         self.m_header = {'user-agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36'}
         self.m_exist_path = "report/exist.txt"
@@ -53,7 +54,7 @@ class Worker:
         Log("RAKUYA GO")
 
         type = 0
-
+        realdata = []
         try:
             if self.m_rakuya_url is None or self.m_rakuya_url == "":
                 Log("RAKUYA url is none")
@@ -78,7 +79,7 @@ class Worker:
             existList = self.GetExistData()
 
             # get all
-            realdata = []
+            # realdata = []
             for page in range(pages):
                 time.sleep(0.1)
 

@@ -68,7 +68,10 @@ class Worker:
             soup = BeautifulSoup(resp.text, 'html.parser')
 
             # get pages cnt
-            allcnt = int(soup.findAll("span", "numb setSearchTotal")[0].text.strip())
+            count_total = len(soup.findAll("span", "numb setSearchTotal"))
+            allcnt = 0
+            if count_total > 0 :
+                allcnt = int(soup.findAll("span", "numb setSearchTotal")[0].text.strip())
             pageitemcnt = 19
             pages = math.ceil(allcnt / pageitemcnt)
 

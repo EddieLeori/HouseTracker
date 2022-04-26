@@ -90,6 +90,7 @@ class Worker:
 
                 # get data
                 allinfos = soup.findAll('section', class_='grid-item search-obj')
+                Log("count=" + len(allinfos))
                 for item in allinfos:
                     data = HData()
                     data.work_id = self.m_id
@@ -104,7 +105,7 @@ class Worker:
                     # check real
                     if self.CheckExist(existList, self.m_id, type, data.uuid) is False:
                         realdata.append(data)
-        except:
+        except ValueError as error:
             Log("RAKUYA is except error!")
 
         # end

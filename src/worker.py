@@ -72,6 +72,7 @@ class Worker:
             allcnt = 0
             if count_total > 0 :
                 allcnt = int(soup.findAll("span", "numb setSearchTotal")[0].text.strip())
+            print("allcnt=" + allcnt)
             pageitemcnt = 19
             pages = math.ceil(allcnt / pageitemcnt)
 

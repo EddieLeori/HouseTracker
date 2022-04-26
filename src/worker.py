@@ -72,7 +72,7 @@ class Worker:
             allcnt = 0
             if count_total > 0 :
                 allcnt = int(soup.findAll("span", "numb setSearchTotal")[0].text.strip())
-            print("allcnt=" + allcnt)
+            print("allcnt=" + str(allcnt))
             pageitemcnt = 19
             pages = math.ceil(allcnt / pageitemcnt)
 
@@ -109,6 +109,8 @@ class Worker:
                     if self.CheckExist(existList, self.m_id, type, data.uuid) is False:
                         realdata.append(data)
         except ValueError as error:
+            Log(error)
+        except:
             Log("RAKUYA is except error!")
 
         # end

@@ -90,7 +90,6 @@ class Worker:
 
                 # get data
                 allinfos = soup.findAll('section', class_='grid-item search-obj')
-                Log("count=" + len(allinfos))
                 for item in allinfos:
                     data = HData()
                     data.work_id = self.m_id
@@ -169,7 +168,7 @@ class Worker:
             }
         print(d)
         response = requests.post('http://127.0.0.1:5124/action', data = json.dumps(d))
-        if response.status_code is not 200:
+        if response.status_code != 200:
             Log(response)
             return False
         return True

@@ -147,7 +147,8 @@ class Worker:
                         tmpdata = tmpdata + "-----------------------------------------------------" + "\n"
                         rpf.write(tmpdata)
                         # send notiry
-                        self.Notify(tmpdata)
+                        if self.Notify(tmpdata) is False:
+                            return
                     except:
                         Log("Error")
                         Log(data)
@@ -162,11 +163,15 @@ class Worker:
         # Log(data)                        
         d = {
                 "psw": "!@34001?>f!&&",
-                "key": "broadcast",
+                "key": "notifyAll",
                 "value": data
             }
         print(d)
-        requests.post('https://leori-houserobot2.herokuapp.com/action', data = json.dumps(d))
+        response = requests.post('http://127.0.0.1:5124/action', data = json.dumps(d))
+        if response.status_code is not 200:
+            Log(response)
+            return False
+        return True
         # requests.post('http://192.168.1.103:5123/action', data = json.dumps(d))
         
 

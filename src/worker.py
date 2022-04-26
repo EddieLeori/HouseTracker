@@ -70,14 +70,12 @@ class Worker:
             # get pages cnt
             count_total = len(soup.findAll("span", "numb setSearchTotal"))
             allcnt = 0
+            pages = 1
             if count_total > 0 :
                 allcnt = int(soup.findAll("span", "numb setSearchTotal")[0].text.strip())
+                pageitemcnt = 19
+                pages = math.ceil(allcnt / pageitemcnt)
             Log("allcnt=" + str(allcnt))
-            pageitemcnt = 19
-            pages = math.ceil(allcnt / pageitemcnt)
-
-            # # test
-            # pages = 1
 
             # get exist
             existList = self.GetExistData()

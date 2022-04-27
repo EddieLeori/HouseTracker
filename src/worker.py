@@ -145,14 +145,14 @@ class Worker:
                 rpf = open(rpfile, 'a')
                 for data in realdata:
                     try:
-                        # write file
-                        f.write(str(data.work_id) + " " + str(data.type) + " " + str(data.uuid) + "\n")
                         tmpdata = data.uuid + "\n" + data.hef + "\n" + data.txt + "\n" + data.map + "\n" + data.data + "\n" + data.price + "\n"
                         tmpdata = tmpdata + "-----------------------------------------------------" + "\n"
-                        rpf.write(tmpdata)
                         # send notiry
                         if self.Notify(tmpdata) is False:
                             return
+                        # write file
+                        f.write(str(data.work_id) + " " + str(data.type) + " " + str(data.uuid) + "\n")
+                        rpf.write(tmpdata)
                     except:
                         Log("Error")
                         Log(data)

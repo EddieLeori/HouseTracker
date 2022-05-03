@@ -64,18 +64,18 @@ class Worker:
             headers = self.m_header
 
             # get url
+            Log("url="+url)
             resp = requests.get(url, headers = headers)
             soup = BeautifulSoup(resp.text, 'html.parser')
 
             # get pages cnt
-            count_total = len(soup.findAll("span", class_="numb setSearchTotal"))
-            allcnt = 0
+            pageitemcnt = 19
+            soupdata = soup.findAll("span", class_="numb setSearchTotal")
             pages = 1
-            if count_total > 0 :
-                allcnt = int(soup.findAll("span", class_="numb setSearchTotal")[0].text.strip())
-                pageitemcnt = 19
+            if len(soupdata) > 0 :
+                allcnt = int(soupdata[0].text.strip())
                 pages = math.ceil(allcnt / pageitemcnt)
-            Log("allcnt=" + str(allcnt))
+            Log("count_total=" + str(len(soupdata)))
 
             # get exist
             existList = self.GetExistData()
@@ -106,10 +106,8 @@ class Worker:
                     # check real
                     if self.CheckExist(existList, self.m_id, type, data.uuid) is False:
                         realdata.append(data)
-        except ValueError as error:
-            Log(error)
-        except:
-            Log("RAKUYA is except error!")
+        except Exception as e:
+            Log("RAKUYA is except error!:" + str(e))
 
         # end
         self.End(realdata, self.m_id, type)
@@ -153,8 +151,8 @@ class Worker:
                         # write file
                         f.write(str(data.work_id) + " " + str(data.type) + " " + str(data.uuid) + "\n")
                         rpf.write(tmpdata)
-                    except:
-                        Log("Error")
+                    except Exception as e:
+                        Log("Error:" + str(e))
                         Log(data)
                         Log("-----------------------------------------------------")
                 f.close()
@@ -178,8 +176,8 @@ class Worker:
                 Log(response)
                 return False
             return True
-        except:
-            Log("notify server error")
+        except Exception as e:
+            Log("notify server error:" + str(e))
             return False
         
         

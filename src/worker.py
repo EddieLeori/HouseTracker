@@ -216,6 +216,7 @@ class Worker:
         print(d)
         try:
             response = requests.post('http://127.0.0.1:5124/action', data = json.dumps(d))
+            # response = requests.post('http://104.199.211.77:5124/action', data = json.dumps(d))
             # response = requests.post('http://192.168.1.103:5123/action', data = json.dumps(d))
             if response.status_code != 200:
                 Log(response)

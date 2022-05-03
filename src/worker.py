@@ -1,3 +1,4 @@
+from urllib import response
 from lib.utility import *
 from tornado.ioloop import IOLoop
 import requests
@@ -6,6 +7,7 @@ import math
 import json
 import random
 import threading
+import re
 
 class HData:
     def __init__(self):
@@ -68,6 +70,8 @@ class Worker:
             {'User-Agent': "Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:10.0) Gecko/20100101 Firefox/10.0"},
             {'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.88 Safari/537.36"},
             ]
+        
+        self.m_ips = ["127.0.0.1"]
 
         self.m_exist_path = "report/exist.txt"
         self.m_report_path = "report/report"
@@ -83,7 +87,30 @@ class Worker:
     
     def getHeaders(self):
         return random.choice(self.m_headerlst)
+    
+    def updateIP(self):
+        initip = "127.0.0.1"
+        response = requests.get("https://www.sslproxies.org/")
+        proxy_ips = re.findall('\d+\.\d+\.\d+\.\d+:\d+', response.text) #「\d+」代表數字一個位數以上
+        self.m_ips = []
+        for index, ip in enumerate(proxy_ips):
+            try:
+                if index <= 30:  #驗證30組IP
+                    result = requests.get('https://ip.seeip.org/jsonip?',
+                                        proxies={'http': ip, 'https': ip},
+                                        timeout=5)
+                    # print(result.json())
+                    self.m_ips.append(ip)
+            except:
+                msf=f"{ip} invalid"
+                # print(f"{ip} invalid")
+        if self.m_ips is []:
+            self.m_ips.append(initip)
+        Log("update ip's count=" + str(len(self.m_ips)))
 
+    def getIP(self):
+        return random.choice(self.m_ips)
+        
     def RAKUYA(self):
         Log("RAKUYA GO")
 
@@ -95,12 +122,14 @@ class Worker:
                 return
 
             url = self.m_rakuya_url
+            self.updateIP()
 
             # get url
             Log("url="+url)
-            resp = requests.get(url, headers = self.getHeaders())
+            ip = self.getIP()
+            resp = requests.get(url, headers = self.getHeaders(),proxies={"http": "http://" + ip})
             if resp.status_code != 200:
-                Log("resp status=" + str(resp.status_code) + " reason=" + str(resp.reason) + " text=" + str(resp.text))
+                Log("resp status=" + str(resp.status_code) + " reason=" + str(resp.reason))
                 return
             soup = BeautifulSoup(resp.text, 'html.parser')
 
@@ -121,7 +150,8 @@ class Worker:
                     try: 
                         # get item url
                         pageurl = url + "&page=" + str(page + 1)
-                        resp = requests.get(pageurl, headers=self.getHeaders())
+                        ip = self.getIP()
+                        resp = requests.get(pageurl, headers = self.getHeaders(),proxies={"http": "http://" + ip})
                         soup = BeautifulSoup(resp.text, 'html.parser')
 
                         # get data

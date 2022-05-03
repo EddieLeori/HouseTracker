@@ -8,6 +8,7 @@ import json
 import random
 import threading
 import re
+from fake_useragent import UserAgent
 
 class HData:
     def __init__(self):
@@ -25,7 +26,6 @@ class Worker:
     def __init__(self):
         self.m_id = 0
         self.m_url = ""
-        self.m_header = ""
         self.m_exist_path = ""
         self.m_report_path = ""
         self.m_sync_time_s = 3 * 60 * 60
@@ -52,25 +52,7 @@ class Worker:
         # self.m_rakuya_url = "https://www.rakuya.com.tw/sell/result?city=8&zipcode=404&price=~1200&size=22~&usecode=1&room=3~&floor=4~&age=~22&other=P&sort=11&browsed=0"
         # self.m_rakuya_url = "https://www.rakuya.com.tw/sell/result?city=8&zipcode=406%2C404&price=~1200&size=22~&usecode=1&room=3~&floor=4~&age=~22&other=P&sort=11&browsed=0"
         self.m_rakuya_url = "https://www.rakuya.com.tw/sell/result?city=8&zipcode=406%2C404&price=~1200&size=22~&usecode=1&room=3~&other=P&sort=21&browsed=0"
-        
-        self.m_headerlst = [
-            {'User-Agent': "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36"},
-            {'User-Agent': "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36"},
-            {'User-Agent': "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.153 Safari/537.36"},
-            {'User-Agent': "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:30.0) Gecko/20100101 Firefox/30.0"},
-            {'User-Agent': "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.75.14 (KHTML, like Gecko) Version/7.0.3 Safari/537.75.14"},
-            {'User-Agent': "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Win64; x64; Trident/6.0)"},
-            {'User-Agent': "Mozilla/5.0 (Windows; U; Windows NT 5.1; it; rv:1.8.1.11) Gecko/20071127 Firefox/2.0.0.11"},
-            {'User-Agent': "Opera/9.25 (Windows NT 5.1; U; en)"},
-            {'User-Agent': "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 1.1.4322; .NET CLR 2.0.50727)"},
-            {'User-Agent': "Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.5 (like Gecko) (Kubuntu)"},
-            {'User-Agent': "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.12) Gecko/20070731 Ubuntu/dapper-security Firefox/1.5.0.12"},
-            {'User-Agent': "Lynx/2.8.5rel.1 libwww-FM/2.14 SSL-MM/1.4.1 GNUTLS/1.2.9"},
-            {'User-Agent': "Mozilla/5.0 (X11; Linux i686) AppleWebKit/535.7 (KHTML, like Gecko) Ubuntu/11.04 Chromium/16.0.912.77 Chrome/16.0.912.77 Safari/535.7"},
-            {'User-Agent': "Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:10.0) Gecko/20100101 Firefox/10.0"},
-            {'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.88 Safari/537.36"},
-            ]
-        
+                
         self.m_ips = ["127.0.0.1"]
 
         self.m_exist_path = "report/exist.txt"
@@ -86,7 +68,9 @@ class Worker:
             time.sleep(self.m_sync_time_s)
     
     def getHeaders(self):
-        return random.choice(self.m_headerlst)
+        ua = UserAgent()
+        user_agent = {"User-Agent": ua.random}
+        return user_agent
     
     def updateIP(self):
         initip = "127.0.0.1"
@@ -127,7 +111,7 @@ class Worker:
             # get url
             Log("url="+url)
             ip = self.getIP()
-            resp = requests.get(url, headers = self.getHeaders(),proxies={"http": "http://" + ip})
+            resp = requests.get(url, headers = self.getHeaders(), proxies={"http": "http://" + ip})
             if resp.status_code != 200:
                 Log("resp status=" + str(resp.status_code) + " reason=" + str(resp.reason))
                 return
@@ -151,7 +135,7 @@ class Worker:
                         # get item url
                         pageurl = url + "&page=" + str(page + 1)
                         ip = self.getIP()
-                        resp = requests.get(pageurl, headers = self.getHeaders(),proxies={"http": "http://" + ip})
+                        resp = requests.get(pageurl, headers = self.getHeaders(), proxies={"http": "http://" + ip})
                         soup = BeautifulSoup(resp.text, 'html.parser')
 
                         # get data

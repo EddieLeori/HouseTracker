@@ -66,6 +66,8 @@ class Worker:
             # get url
             Log("url="+url)
             resp = requests.get(url, headers = headers)
+            if resp.status_code != 200:
+                Log(resp)
             soup = BeautifulSoup(resp.text, 'html.parser')
 
             # get pages cnt

@@ -9,6 +9,14 @@ import random
 import threading
 import re
 from fake_useragent import UserAgent
+import http.client
+import logging
+http.client.HTTPConnection.debuglevel = 1
+logging.basicConfig()
+logging.getLogger().setLevel(logging.DEBUG)
+requests_log = logging.getLogger("requests.packages.urllib3")
+requests_log.setLevel(logging.DEBUG)
+requests_log.propagate = False
 
 class HData:
     def __init__(self):
@@ -68,12 +76,18 @@ class Worker:
             time.sleep(self.m_sync_time_s)
     
     def getHeaders(self):
+        # "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.88 Safari/537.36"
         ua = UserAgent()
-        user_agent = {"User-Agent": ua.random}
+        user_agent = {
+            "Host":"www.rakuya.com.tw",
+            "User-Agent": ua.random,
+            "Accept-Encoding":"gzip, deflate",
+            "Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+            "Accept-Language": "zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7"
+            }
         return user_agent
     
     def updateIP(self):
-        initip = "127.0.0.1"
         response = requests.get("https://www.sslproxies.org/")
         proxy_ips = re.findall('\d+\.\d+\.\d+\.\d+:\d+', response.text) #「\d+」代表數字一個位數以上
         self.m_ips = []
@@ -88,9 +102,10 @@ class Worker:
             except:
                 msf=f"{ip} invalid"
                 # print(f"{ip} invalid")
-        if self.m_ips is []:
-            self.m_ips.append(initip)
         Log("update ip's count=" + str(len(self.m_ips)))
+        if not self.m_ips:
+            Log("re update ip's count...")
+            self.updateIP()
 
     def getIP(self):
         return random.choice(self.m_ips)
@@ -112,6 +127,9 @@ class Worker:
             Log("url="+url)
             ip = self.getIP()
             resp = requests.get(url, headers = self.getHeaders(), proxies={"http": "http://" + ip})
+            # Log(str(resp.request.headers))
+            # Log("-----------------------------------")
+            # Log(str(resp.headers))
             if resp.status_code != 200:
                 Log("resp status=" + str(resp.status_code) + " reason=" + str(resp.reason))
                 return
@@ -130,7 +148,7 @@ class Worker:
 
                 # get all
                 for page in range(pages):
-                    time.sleep(0.5)
+                    time.sleep(round(random.random(), 2))
                     try: 
                         # get item url
                         pageurl = url + "&page=" + str(page + 1)

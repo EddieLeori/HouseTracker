@@ -9,14 +9,14 @@ import random
 import threading
 import re
 from fake_useragent import UserAgent
-import http.client
-import logging
-http.client.HTTPConnection.debuglevel = 1
-logging.basicConfig()
-logging.getLogger().setLevel(logging.DEBUG)
-requests_log = logging.getLogger("requests.packages.urllib3")
-requests_log.setLevel(logging.DEBUG)
-requests_log.propagate = False
+# import http.client
+# import logging
+# http.client.HTTPConnection.debuglevel = 1
+# logging.basicConfig()
+# logging.getLogger().setLevel(logging.DEBUG)
+# requests_log = logging.getLogger("requests.packages.urllib3")
+# requests_log.setLevel(logging.DEBUG)
+# requests_log.propagate = False
 
 class HData:
     def __init__(self):
@@ -88,6 +88,7 @@ class Worker:
         return user_agent
     
     def updateIP(self):
+        Log("update proxy ip...")
         response = requests.get("https://www.sslproxies.org/")
         proxy_ips = re.findall('\d+\.\d+\.\d+\.\d+:\d+', response.text) #「\d+」代表數字一個位數以上
         self.m_ips = []
@@ -104,7 +105,6 @@ class Worker:
                 # print(f"{ip} invalid")
         Log("update ip's count=" + str(len(self.m_ips)))
         if not self.m_ips:
-            Log("re update ip's count...")
             self.updateIP()
 
     def getIP(self):

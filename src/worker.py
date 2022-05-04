@@ -61,7 +61,7 @@ class Worker:
         # self.m_rakuya_url = "https://www.rakuya.com.tw/sell/result?city=8&zipcode=406%2C404&price=~1200&size=22~&usecode=1&room=3~&floor=4~&age=~22&other=P&sort=11&browsed=0"
         self.m_rakuya_url = "https://www.rakuya.com.tw/sell/result?city=8&zipcode=406%2C404&price=~1200&size=22~&usecode=1&room=3~&other=P&sort=21&browsed=0"
                 
-        self.m_ips = ["127.0.0.1"]
+        self.m_ips = []
 
         self.m_exist_path = "report/exist.txt"
         self.m_report_path = "report/report"
@@ -83,7 +83,8 @@ class Worker:
             "User-Agent": ua.random,
             "Accept-Encoding":"gzip, deflate",
             "Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-            "Accept-Language": "zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7"
+            "Accept-Language": "zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7",
+            "Referer":"https://www.google.com/"
             }
         return user_agent
     
@@ -132,6 +133,7 @@ class Worker:
             # Log(str(resp.headers))
             if resp.status_code != 200:
                 Log("resp status=" + str(resp.status_code) + " reason=" + str(resp.reason))
+                Log(str(resp.content))
                 return
             soup = BeautifulSoup(resp.text, 'html.parser')
 
